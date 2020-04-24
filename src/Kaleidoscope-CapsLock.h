@@ -11,8 +11,7 @@ class CapsLock_ : public kaleidoscope::Plugin {
 
     kaleidoscope::EventHandlerResult onSetup(void);
     kaleidoscope::EventHandlerResult afterEachCycle();
-    kaleidoscope::EventHandlerResult onKeyswitchEvent(Key &mappedKey, byte row, byte col, 
-                      uint8_t keyState);
+    kaleidoscope::EventHandlerResult onKeyswitchEvent(Key &mappedKey, KeyAddr key_addr, uint8_t keyState);
     static bool swCapsLockState;
     static bool useHwState;
     static uint8_t cycleCount;

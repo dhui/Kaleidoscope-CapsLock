@@ -38,7 +38,7 @@ static void syncCapsLock (bool state) {
 }
 
 kaleidoscope::EventHandlerResult CapsLock_::onKeyswitchEvent(
-  Key &mappedKey, byte row, byte col, uint8_t keyState) {
+  Key &mappedKey, KeyAddr key_addr, uint8_t keyState) {
   if (CapsLock_::useHwState) {
     /*
       If hardware state is found to be reliable, we'll use that.
@@ -73,16 +73,17 @@ kaleidoscope::EventHandlerResult CapsLock_::afterEachCycle() {
     capsCleanupDone = false;
     for (uint8_t r = 0; r < ROWS; r++) {
       for (uint8_t c = 0; c < COLS; c++) {
-        Key k = Layer.lookupOnActiveLayer(r, c);
+        KeyAddr key_addr = KeyAddr(r, c);
+        Key k = Layer.lookupOnActiveLayer(key_addr);
 
         cRGB shiftColor = highlightShiftKeys == 2 ? breath_compute(shiftHue) : hsvToRgb(shiftHue, 255, 255);
 
         if ((k.raw >= Key_A.raw) && (k.raw <= Key_Z.raw)) {
-          ::LEDControl.setCrgbAt(r, c, color);
+          ::LEDControl.setCrgbAt(key_addr, color);
         } else if (highlightShiftKeys && (k == Key_LeftShift || k == Key_RightShift)) {
-          ::LEDControl.setCrgbAt(r, c, shiftColor);
+          ::LEDControl.setCrgbAt(key_addr, shiftColor);
         } else {
-          ::LEDControl.refreshAt(r, c);
+          ::LEDControl.refreshAt(key_addr);
         }
       }
     }
