@@ -10,20 +10,20 @@ uint8_t CapsLock_::shiftHue = 170;
 uint8_t CapsLock_::cycleCount = 0;
 
 kaleidoscope::EventHandlerResult CapsLock_::onSetup(void) {
-  swCapsLockState = !!(kaleidoscope::hid::getKeyboardLEDs() & LED_CAPS_LOCK);
+  swCapsLockState = !!(Kaleidoscope.hid().keyboard().getKeyboardLEDs() & LED_CAPS_LOCK);
   return kaleidoscope::EventHandlerResult::OK;
 }
 
 static bool getCapsLockState() {
   if (CapsLock_::useHwState) {
-    return !!(kaleidoscope::hid::getKeyboardLEDs() & LED_CAPS_LOCK);
+    return !!(Kaleidoscope.hid().keyboard().getKeyboardLEDs() & LED_CAPS_LOCK);
   } else {
     return CapsLock_::swCapsLockState;
   }
 }
 
 static void syncCapsLock (bool state) {
-  bool hwState = !!(kaleidoscope::hid::getKeyboardLEDs() & LED_CAPS_LOCK);
+  bool hwState = !!(Kaleidoscope.hid().keyboard().getKeyboardLEDs() & LED_CAPS_LOCK);
   if (hwState == state) {
     CapsLock_::cycleCount++;
     if (CapsLock_::cycleCount > 1) {
@@ -44,7 +44,7 @@ kaleidoscope::EventHandlerResult CapsLock_::onKeyswitchEvent(
       If hardware state is found to be reliable, we'll use that.
       If hardware state fails to change in syncCapsLock subroutine, this will be skipped.
     */
-    syncCapsLock(kaleidoscope::hid::getKeyboardLEDs() & LED_CAPS_LOCK);
+    syncCapsLock(Kaleidoscope.hid().keyboard().getKeyboardLEDs() & LED_CAPS_LOCK);
     return kaleidoscope::EventHandlerResult::OK;
   }
   /*
@@ -71,14 +71,14 @@ kaleidoscope::EventHandlerResult CapsLock_::afterEachCycle() {
   bool capsState = getCapsLockState();
   if (capsState) {
     capsCleanupDone = false;
-    for (uint8_t r = 0; r < ROWS; r++) {
-      for (uint8_t c = 0; c < COLS; c++) {
+    for (uint8_t r = 0; r < Kaleidoscope.device().matrix_rows; r++) {
+      for (uint8_t c = 0; c < Kaleidoscope.device().matrix_columns; c++) {
         KeyAddr key_addr = KeyAddr(r, c);
         Key k = Layer.lookupOnActiveLayer(key_addr);
 
         cRGB shiftColor = highlightShiftKeys == 2 ? breath_compute(shiftHue) : hsvToRgb(shiftHue, 255, 255);
 
-        if ((k.raw >= Key_A.raw) && (k.raw <= Key_Z.raw)) {
+        if ((k.getRaw() >= Key_A.getRaw()) && (k.getRaw() <= Key_Z.getRaw())) {
           ::LEDControl.setCrgbAt(key_addr, color);
         } else if (highlightShiftKeys && (k == Key_LeftShift || k == Key_RightShift)) {
           ::LEDControl.setCrgbAt(key_addr, shiftColor);
